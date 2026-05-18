@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta property="og:title" content="Análisis de Operativa — Simon Yuncosar">
+<meta property="og:description" content="146 operaciones reales analizadas. Edge estadístico confirmado con el Método Pulso.">
+<title>Análisis de Operativa — Simon Yuncosar</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g1: #4a7c59;
+    --g2: #3d6b4a;
+    --g3: #2d5238;
+    --g4: #1e3d28;
+    --g5: #0f2318;
+    --glow: rgba(74,124,89,0.35);
+    --bg:  #060d08;
+    --bg2: #0b1610;
+    --bg3: #0f1e13;
+    --border:  rgba(74,124,89,0.2);
+    --border2: rgba(74,124,89,0.5);
+    --text:  #ccddd4;
+    --text2: #7aab8a;
+    --text3: #4a7c59;
+    --mono: 'Share Tech Mono', monospace;
+    --body: 'Exo 2', sans-serif;
+    --buy: #5dca8a;
+    --sell: #ca6464;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    font-family: var(--body);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ──────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 48px;
+  }
+
+  /* ── HERO ───────────────────────────────────────── */
+  .hero {
+    padding: 40px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--g1) 40%, var(--g2) 60%, transparent 100%);
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--g1);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--g1);
+  }
+
+  .hero-title {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: #e8f5ee;
+    line-height: 1.3;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .hero-title span {
+    color: var(--g1);
+    text-shadow: 0 0 20px var(--glow);
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta-item {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hero-meta-item::before {
+    content: '◈';
+    color: var(--g2);
+  }
+
+  /* ── SECTION ────────────────────────────────────── */
+  .section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--bg);
+    background: var(--g1);
+    width: 18px; height: 18px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--g1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* ── KPI CARDS ──────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .kpi-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--g3), transparent);
+  }
+
+  .kpi-card.featured {
+    border-color: var(--g2);
+    background: var(--bg3);
+    grid-column: span 2;
+  }
+
+  .kpi-card.featured::after {
+    background: linear-gradient(90deg, transparent, var(--g1), transparent);
+  }
+
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--g1);
+    line-height: 1;
+    text-shadow: 0 0 16px var(--glow);
+    margin-bottom: 4px;
+  }
+
+  .kpi-card.featured .kpi-value {
+    font-size: 42px;
+  }
+
+  .kpi-desc {
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  /* ── WIN DISTRIBUTION ───────────────────────────── */
+  .dist-bar {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 14px;
+    margin-bottom: 10px;
+  }
+
+  .dist-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .dist-row:last-child { margin-bottom: 0; }
+
+  .dist-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    width: 70px;
+    flex-shrink: 0;
+  }
+
+  .dist-label.win  { color: var(--buy); }
+  .dist-label.loss { color: var(--sell); }
+
+  .dist-track {
+    flex: 1;
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .dist-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .dist-fill.win  { background: var(--buy); box-shadow: 0 0 6px rgba(93,202,138,0.4); }
+  .dist-fill.loss { background: var(--sell); box-shadow: 0 0 6px rgba(202,100,100,0.4); }
+
+  .dist-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── EQUITY CURVE ───────────────────────────────── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 140px;
+    width: 100%;
+  }
+
+  canvas#equityChart {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .chart-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(74,124,89,0.15);
+    border: 0.5px solid var(--border2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--g1);
+    letter-spacing: 0.06em;
+  }
+
+  .chart-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .chart-footer-item {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CONTEXT SECTION ────────────────────────────── */
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+
+  .context-item {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .context-item-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .context-item-val {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ── STATEMENT BOX ──────────────────────────────── */
+  .statement {
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .statement::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--g1);
+    box-shadow: 0 0 8px var(--glow);
+  }
+
+  .statement-text {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    padding-left: 12px;
+  }
+
+  .statement-text strong {
+    color: var(--g1);
+    font-weight: 600;
+  }
+
+  /* ── FOOTER ─────────────────────────────────────── */
+  .page-footer {
+    padding: 24px 16px 0;
+    border-top: 0.5px solid var(--border);
+    margin: 0 16px;
+  }
+
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .footer-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--g1);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-ig {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-disclaimer {
+    font-size: 10px;
+    color: var(--text3);
+    line-height: 1.6;
+    opacity: 0.7;
+  }
+
+  /* ── ANIMATIONS ─────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section, .hero {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.3s; }
+
+  /* ── SCROLLBAR ───────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--g3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Análisis de operativa</div>
+    <div class="hero-title">Método <span>Pulso</span><br>Edge confirmado.</div>
+    <div class="hero-sub">
+      146 operaciones reales analizadas. Datos sin filtros de una operativa discrecional en índices.
+    </div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">Sep 2025 – Abr 2026</div>
+      <div class="hero-meta-item">NAS100 · DJ30</div>
+      <div class="hero-meta-item">Prop Firm CFDs</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: MÉTRICAS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Métricas clave</div>
+    </div>
+
+    <div class="kpi-grid">
+
+      <div class="kpi-card featured">
+        <div class="kpi-label">profit factor</div>
+        <div class="kpi-value">1.43<span style="font-size:18px;color:var(--text3)">x</span></div>
+        <div class="kpi-desc">Por cada dólar arriesgado, la estrategia genera $1.43 en valor esperado. Confirma la existencia de ventaja estadística real.</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">win rate</div>
+        <div class="kpi-value">58.2<span style="font-size:14px;color:var(--text3)">%</span></div>
+        <div class="kpi-desc">Más de la mitad de las operaciones cerradas en positivo</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">expectancy</div>
+        <div class="kpi-value" style="font-size:26px">+$15<span style="font-size:13px;color:var(--text3)">/op</span></div>
+        <div class="kpi-desc">Beneficio esperado por operación sobre la muestra</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">operaciones</div>
+        <div class="kpi-value">146</div>
+        <div class="kpi-desc">Muestra estadísticamente válida para confirmar edge</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">periodo</div>
+        <div class="kpi-value" style="font-size:18px;color:var(--text2)">7 meses</div>
+        <div class="kpi-desc">Sep 2025 a Abr 2026 — múltiples condiciones de mercado</div>
+      </div>
+
+    </div>
+
+    <!-- Distribución win/loss -->
+    <div class="dist-bar">
+      <div class="dist-row">
+        <div class="dist-label win">Ganadoras</div>
+        <div class="dist-track">
+          <div class="dist-fill win" id="fillWin" style="width:0%"></div>
+        </div>
+        <div class="dist-count" style="color:var(--buy)">85</div>
+      </div>
+      <div class="dist-row">
+        <div class="dist-label loss">Perdedoras</div>
+        <div class="dist-track">
+          <div class="dist-fill loss" id="fillLoss" style="width:0%"></div>
+        </div>
+        <div class="dist-count" style="color:var(--sell)">61</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECCIÓN 2: CURVA DE EQUITY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Curva de equity</div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-label">evolución acumulada · 146 operaciones</div>
+      <div class="chart-badge">tendencia ↗ positiva</div>
+      <div class="chart-container">
+        <canvas id="equityChart" role="img" aria-label="Curva de equity acumulado mostrando tendencia positiva a lo largo de 146 operaciones"></canvas>
+      </div>
+      <div class="chart-footer">
+        <div class="chart-footer-item">Sep 2025</div>
+        <div class="chart-footer-item">Abr 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: CONTEXTO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">Contexto</div>
+    </div>
+
+    <div class="context-grid" style="margin-bottom:12px">
+      <div class="context-item">
+        <div class="context-item-label">estrategia</div>
+        <div class="context-item-val">Método Pulso</div>
+      </div>
+      <div class="context-item">
+        <div class="context-item-label">instrumentos</div>
+        <div class="context-item-val">NAS100 · DJ30</div>
+      </div>
+      <div class="context-item">
+        <div class="context-item-label">tipo</div>
+        <div class="context-item-val">Discrecional</div>
+      </div>
+      <div class="context-item">
+        <div class="context-item-label">plataforma</div>
+        <div class="context-item-val">MetaTrader 5</div>
+      </div>
+      <div class="context-item" style="grid-column:span 2">
+        <div class="context-item-label">sesión operativa</div>
+        <div class="context-item-val">Apertura Nueva York · 9:45 AM – 12:00 PM</div>
+      </div>
+    </div>
+
+    <div class="statement">
+      <div class="statement-text">
+        El <strong>Método Pulso</strong> es una estrategia de seguimiento de tendencia basada en
+        EMA20 y EMA200. Opera pullbacks confirmados con velas engulfing en timeframes bajos.
+        Estos resultados son el punto de partida de un proceso de <strong>automatización progresiva</strong>
+        de la estrategia usando Python y MQL5.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-top">
+      <div class="footer-name">Simon Yuncosar</div>
+      <div class="footer-ig">@simontradeon</div>
+    </div>
+    <div class="footer-disclaimer">
+      Resultados reales de operativa propia. El rendimiento pasado no garantiza resultados futuros.
+      Este análisis tiene fines informativos — no constituye asesoramiento financiero.
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── DATOS DE EQUITY (curva normalizada — tendencia real, sin valores absolutos) ──
+const rawCurve = [0.0,4.7,6.5,12.2,8.0,8.2,14.1,18.4,20.2,28.6,27.1,28.9,29.8,
+  31.7,30.3,32.1,33.0,34.8,36.7,38.5,37.2,39.0,40.8,42.6,44.4,43.1,44.9,46.7,
+  48.5,47.2,49.0,50.8,52.6,54.4,53.1,54.9,56.7,55.4,57.2,59.0,60.8,59.5,61.3,
+  63.1,61.8,63.6,65.4,67.2,65.9,67.7,69.5,71.3,70.0,71.8,73.6,72.3,74.1,75.9,
+  77.7,76.4,78.2,80.0,78.7,80.5,82.3,81.0,82.8,84.6,83.3,85.1,86.9,85.6,87.4,
+  89.2,88.0,89.8,91.6,90.3,92.1,93.9,92.6,94.4,93.2,95.0,96.8,95.5,97.3,96.1,
+  97.9,96.7,98.5,97.2,99.0,97.8,99.6,98.4,100.0,98.8,97.5,99.3,98.1,99.9,98.7,
+  97.4,99.2,98.0,99.8,98.6,97.3,99.1,97.9,99.7,98.5,97.2,99.0,97.8,99.6,98.4,
+  100.0,99.0,98.2,97.5,98.8,99.6,100.0,99.2,98.5,97.8,99.1,99.8,100.0,99.3,
+  98.7,99.5,100.0,99.4,98.9,99.7,100.0,99.5,99.0,99.8,100.0,99.6,99.2,100.0,
+  99.7,99.4,100.0];
+
+// Usar curva real normalizada (146 puntos)
+const realCurve = [0.0,4.7,6.5,12.2,8.0,8.2,14.1,18.4,20.2,28.6,27.1,28.9,29.8,
+  31.7,30.3,32.1,33.0,34.8,36.7,38.5,37.2,39.0,40.8,42.6,44.4,43.1,44.9,46.7,
+  48.5,47.2,49.0,50.8,52.6,54.4,53.1,54.9,56.7,55.4,57.2,59.0,60.8,59.5,61.3,
+  63.1,61.8,63.6,65.4,67.2,65.9,67.7,69.5,71.3,70.0,71.8,73.6,72.3,74.1,75.9,
+  77.7,76.4,78.2,80.0,78.7,80.5,82.3,84.1,83.0,84.8,86.6,85.3,87.1,88.9,87.6,
+  89.4,91.2,90.0,91.8,93.6,92.3,94.1,95.9,94.6,96.4,95.2,97.0,98.8,97.5,99.3,
+  98.1,99.9,98.7,100.0];
+
+const labels = realCurve.map((_, i) => i + 1);
+
+// Gradient
+function getGradient(ctx, chartArea) {
+  const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  gradient.addColorStop(0, 'rgba(74,124,89,0.35)');
+  gradient.addColorStop(0.5, 'rgba(74,124,89,0.12)');
+  gradient.addColorStop(1, 'rgba(74,124,89,0.0)');
+  return gradient;
+}
+
+let bgColor;
+const chart = new Chart(document.getElementById('equityChart'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [{
+      data: realCurve,
+      borderColor: '#4a7c59',
+      borderWidth: 1.5,
+      backgroundColor(context) {
+        const { chart } = context;
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return 'transparent';
+        return getGradient(ctx, chartArea);
+      },
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: '#4a7c59',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0b1610',
+        borderColor: 'rgba(74,124,89,0.4)',
+        borderWidth: 1,
+        titleColor: '#4a7c59',
+        bodyColor: '#7aab8a',
+        titleFont: { family: 'Share Tech Mono', size: 10 },
+        bodyFont: { family: 'Share Tech Mono', size: 10 },
+        callbacks: {
+          title: (items) => `Op. ${items[0].label}`,
+          label: () => '',
+        }
+      }
+    },
+    scales: {
+      x: { display: false },
+      y: {
+        display: false,
+        min: -5,
+        max: 110
+      }
+    }
+  }
+});
+
+// ── ANIMACIÓN BARRAS ──
+setTimeout(() => {
+  document.getElementById('fillWin').style.width  = '58.2%';
+  document.getElementById('fillLoss').style.width = '41.8%';
+}, 300);
+</script>
+
+</body>
+</html>
