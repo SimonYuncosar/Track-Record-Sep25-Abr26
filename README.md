@@ -1,1 +1,14 @@
-Este Trackrecord permite observar el desempeño y el edge de la estrategia denominada "Pulso". En la descripción del repositorio se presenta la logica de la estrategia. La muestra tomada de las operaciones realizadas entre septiembre 2025 y abril 2026  confirma la existencia de una ventaja positiva. Esta estrategia se opera de forma discrecional.
+# Track Record — Método Pulso
+## Sep 2025 – Abr 2026
+
+Análisis estadístico de 146 operaciones reales en NAS100 y DJ30
+
+## Métricas principales
+- Win rate: 58.2%
+- Profit factor: 1.43
+- Expectancy: $15.35 por operación
+- Periodo: septiembre 2025 – abril 2026
+
+## Estrategia
+El Método Pulso es una estrategia de seguimiento de tendencia
+basada en EMA20 y EMA200...
